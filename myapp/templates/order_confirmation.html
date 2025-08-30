@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Confirmation{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow">
+        <div class="card-body p-5 text-center">
+            <i class="fas fa-check-circle text-success display-1 mb-4"></i>
+            <h2 class="card-title display-6 fw-bold mb-3">Order Confirmed!</h2>
+            <p class="card-text text-muted mb-4">We've sent a confirmation to {{ order.email }}</p>
+            
+            <div class="row text-start mb-4">
+                <div class="col-md-6 mb-3">
+                    <p class="fw-semibold mb-1">Order #:</p>
+                    <p>{{ order.id }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <p class="fw-semibold mb-1">Date:</p>
+                    <p>{{ order.created_at|date:"F j, Y H:i" }}</p>
+                </div>
+                <div class="col-12 mb-3">
+                    <p class="fw-semibold mb-1">Status:</p>
+                    <p class="text-capitalize">{{ order.get_status_display }}</p>
+                </div>
+                
+                <div class="col-12 border-top pt-3 mb-3">
+                    <h5 class="fw-bold mb-3">Order Items</h5>
+                    <div class="list-group list-group-flush">
+                        {% for item in order.order_items.all %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <div>
+                                <p class="mb-1">{{ item.item.name }}</p>
+                                <small class="text-muted">Qty: {{ item.quantity }}</small>
+                            </div>
+                            <p>₹{{ item.price_at_order }} × {{ item.quantity }} = ₹{{ item.line_total }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="col-12 border-top pt-3 mb-3">
+                    <div class="d-flex justify-content-between fw-bold">
+                        <p>Total Amount:</p>
+                        <p>₹{{ order.total_amount }}</p>
+                    </div>
+                </div>
+
+                {% if order.address %}
+                <div class="col-12 border-top pt-3">
+                    <h5 class="fw-bold mb-3">Delivery Information</h5>
+                    <p>{{ order.customer_name }}</p>
+                    <p>{{ order.address }}</p>
+                    <p>Phone: {{ order.phone }}</p>
+                    {% if order.special_instructions %}
+                        <p class="mt-2">
+                            <span class="fw-semibold">Special Instructions:</span>
+                            {{ order.special_instructions }}
+                        </p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <a href="{% url 'myapp:menu' %}" class="btn btn-danger me-md-2 px-4">Back to Menu</a>
+                <a href="{% url 'myapp:index' %}" class="btn btn-outline-secondary px-4">Home</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

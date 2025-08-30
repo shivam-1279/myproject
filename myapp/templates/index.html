@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Savory | Fine Dining Experience{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero vh-100 d-flex align-items-center justify-content-center text-center pt-5" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') center/cover no-repeat;">
+  <div class="container">
+    <h1 class="display-3 fw-bold mb-4 text-white">Epicurean Excellence</h1>
+    <p class="lead mb-5 mx-auto text-white" style="max-width: 600px;">Where culinary artistry meets timeless tradition in every bite</p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      <a href="#reservations" class="btn btn-danger btn-lg px-5 py-3 rounded-pill">Reservations</a>
+      <a href="{% url 'myapp:menu' %}" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill">View Menu</a>
+    </div>
+  </div>
+</section>
+
+<!-- About Section -->
+<section class="py-5 bg-custom-black mt-5">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-6 mb-4 mb-md-0">
+        <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
+             alt="Professional chef preparing food" class="img-fluid rounded shadow">
+      </div>
+      <div class="col-md-6 ps-md-5">
+        <h2 class="display-5 fw-bold mb-4 text-custom-red">Our Story</h2>
+        <p class="lead mb-3 text-white">Founded in 1998, Savory has been redefining fine dining with its innovative approach to classic cuisine. Our executive chef brings twenty years of Michelin-starred experience to every dish.</p>
+        <p class="lead mb-4 text-white">We source only the finest seasonal ingredients from local farmers and international purveyors to ensure each plate tells a story of quality and passion.</p>
+        <button class="btn btn-outline-danger btn-lg px-5 rounded-pill">Learn More</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Menu Preview -->
+<section class="py-5 bg-custom-black my-5">
+  <div class="container">
+    <h2 class="display-5 fw-bold mb-5 text-center text-custom-red">Signature Dishes</h2>
+    
+    {% if featured_items %}
+    <div class="row g-4">
+      {% for item in featured_items %}
+      <div class="col-md-6 col-lg-4 p-3">
+        <div class="card bg-black text-white h-100 border-0 shadow hover-shadow-lg transition">
+          {% if item.image %}
+            <img src="{{ item.image.url }}" alt="{{ item.name }}" class="card-img-top" style="height: 250px; object-fit: cover;">
+          {% else %}
+            <img src="{% static 'images/default-dish.jpg' %}" alt="{{ item.name }}" class="card-img-top" style="height: 250px; object-fit: cover;">
+          {% endif %}
+          <div class="card-body d-flex flex-column">
+            <h3 class="card-title h5">{{ item.name }}</h3>
+            <p class="card-text text-white flex-grow-1">{{ item.description|truncatechars:100 }}</p>
+            <div class="d-flex justify-content-between align-items-center mt-auto">
+              <span class="h5 text-custom-red mb-0">₹{{ item.price }}</span>
+              <a href="{% url 'myapp:add_to_cart' item.id %}" class="btn btn-danger btn-sm">Add to Cart</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+      <p class="text-center text-muted py-5">No featured dishes available right now. Please check back later!</p>
+    {% endif %}
+
+    <div class="text-center mt-5">
+      <a href="{% url 'myapp:menu' %}" class="btn btn-outline-danger btn-lg px-5 rounded-pill">Full Menu</a>
+    </div>
+  </div>
+</section>
+<!-- Contact & Map -->
+<section class="py-5 mt-5 pb-5 bg-custom-black" id="reservations">
+  <div class="container">
+    <div class="row">
+      <!-- Reservation Form -->
+      <div class="col-lg-6 mb-5 mb-lg-0 pe-lg-4">
+        <h2 class="display-5 fw-bold mb-4 text-custom-red">Reservations</h2>
+        
+        {% if messages %}
+          {% for message in messages %}
+            {% if 'reservation' in message.tags %}
+              <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} alert-dismissible fade show mb-4">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+        
+        <form method="POST" action="#reservations">
+          {% csrf_token %}
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <input type="text" name="name" placeholder="Name" class="form-control bg-dark text-white border-dark" required>
+            </div>
+            <div class="col-md-6">
+              <input type="email" name="email" placeholder="Email" class="form-control bg-dark text-white border-dark" required>
+            </div>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <input type="date" name="date" class="form-control bg-dark text-white border-dark" required min="{{ today }}">
+            </div>
+            <div class="col-md-6">
+              <select name="time" class="form-select bg-dark text-white border-dark" required>
+                <option value="" disabled selected>Select time</option>
+                <option value="17:00">5:00 PM</option>
+                <option value="17:30">5:30 PM</option>
+                <option value="18:00">6:00 PM</option>
+                <option value="18:30">6:30 PM</option>
+                <option value="19:00">7:00 PM</option>
+                <option value="19:30">7:30 PM</option>
+                <option value="20:00">8:00 PM</option>
+                <option value="20:30">8:30 PM</option>
+                <option value="21:00">9:00 PM</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <select name="party_size" class="form-select bg-dark text-white border-dark" required>
+              <option value="" disabled selected>Party size</option>
+              <option value="1">1 person</option>
+              <option value="2">2 people</option>
+              <option value="3">3 people</option>
+              <option value="4">4 people</option>
+              <option value="5">5 people</option>
+              <option value="6">6+ people</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <textarea name="special_requests" placeholder="Special Requests" class="form-control bg-dark text-white border-dark" rows="4"></textarea>
+          </div>
+          <button type="submit" class="btn btn-danger w-100 py-3 fw-semibold">Reserve Table</button>
+        </form>
+      </div>
+
+      <!-- Visit Us -->
+      <div class="col-lg-6 ps-lg-4 ">
+        <h2 class="display-5 fw-bold mb-4 text-custom-red">Visit Us</h2>
+        <div class="ratio ratio-16x9 mb-4">
+          <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80" 
+               alt="Elegant restaurant interior" class="img-fluid rounded">
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3 mb-md-0">
+            <h4 class="h5 fw-bold mb-3 text-white">Hours</h4>
+            <p class="text-white mb-1">Tue-Thu: 5:30PM-10PM</p>
+            <p class="text-white mb-1">Fri-Sat: 5PM-11PM</p>
+            <p class="text-white mb-1">Sun: 5PM-9PM</p>
+            <p class="text-white">Closed Monday</p>
+          </div>
+          <div class="col-md-6">
+            <h4 class="h5 fw-bold mb-3 text-white">Location</h4>
+            <p class="text-white mb-1">123 Culinary Ave</p>
+            <p class="text-white mb-1">Gastronomy District</p>
+            <p class="text-white mb-1">New York, NY 10001</p>
+            <p class="text-white">(555) 123-4567</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
